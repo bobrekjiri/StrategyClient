@@ -14,14 +14,23 @@ using System.Windows.Shapes;
 
 namespace StrategyClient
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private Client client;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+           client = new Client();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            client.Dispose();
         }
     }
 }
