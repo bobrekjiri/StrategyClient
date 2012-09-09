@@ -16,27 +16,24 @@ namespace StrategyClient
 {
     public partial class MainWindow : Window
     {
-        private Client client;
-        private Random random;
-
+        App app;
+        Client client;
         public MainWindow()
         {
             InitializeComponent();
-            random = new Random();
+            app = (App)App.Current;
+            client = app.Client;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            client = new Client();
-            byte[] buffer = new byte[46];
-            random.NextBytes(buffer);
-            string hash = new UTF8Encoding().GetString(buffer);
-            client.Send(RequestType.Welcome, string.Empty);
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            client.Dispose();
+            string data = string.Empty;
+            data += (short)app.LanguageCode + "~";
+            data += app.Version.Major + "~";
+            data += app.Version.Minor + "~";
+            data += app.Version.Build + "~";
+            data += app.Version.Revision + "~";
+            client.Send(RequestType.Welcome, data);
         }
     }
 }

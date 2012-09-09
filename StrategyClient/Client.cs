@@ -9,8 +9,6 @@ using System.IO;
 
 namespace StrategyClient
 {
-    public enum RequestType : short { Welcome }
-
     class Client : IDisposable
     {
         private TcpClient client;
@@ -37,6 +35,7 @@ namespace StrategyClient
             encryptor = aes.CreateEncryptor();
             decryptor = aes.CreateDecryptor();
             buffer = new byte[48];
+
             Array.Copy(aes.IV, buffer, 16);
             Array.Copy(aes.Key, 0, buffer, 16, 32);
             buffer = rsa.Encrypt(buffer, true);
@@ -73,13 +72,14 @@ namespace StrategyClient
 
         public void Send(RequestType type, string data)
         {
-            string text = string.Empty;
-            text += (char)type;
+            string text = (short)type + "~";
             text += data;
-            byte[] buffer = Encrypt(text);
-            clientStream.Write(buffer, 0, buffer.Length);
-            buffer = new byte[4096];
 
+            byte[] buffer = Encrypt(text);
+            string text2 = Decrypt(buffer);
+            clientStream.Write(buffer, 0, buffer.Length);
+
+            buffer = new byte[4096];
             int length = clientStream.Read(buffer, 0, buffer.Length);
             byte[] buffer2 = new byte[length];
             string messsage = Decrypt(buffer2);
