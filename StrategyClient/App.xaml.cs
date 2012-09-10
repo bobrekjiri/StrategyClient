@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Reflection;
+using System.Threading;
 
 namespace StrategyClient
 {
@@ -19,6 +20,17 @@ namespace StrategyClient
             Client = new Client();
             LanguageCode = LanguageCode.Czech; //TODO: load from configuration file
             Version = Assembly.GetExecutingAssembly().GetName().Version;
+
+            while (true)
+            {
+                LoginWindow loginWindow = new LoginWindow();
+                bool? goAhead = loginWindow.ShowDialog();
+                if (goAhead != true)
+                {
+                    break;
+                }
+            }
+            Shutdown();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)

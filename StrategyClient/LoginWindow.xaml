@@ -1,0 +1,10 @@
+﻿<Window x:Class="StrategyClient.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Strategie by Infinity Games © 2012" MinHeight="600" MinWidth="1000" WindowStartupLocation="CenterScreen" WindowState="Maximized" FontFamily="Ubuntu" Loaded="Window_Loaded">
+    <Window.Resources>
+        <ImageBrush x:Key="background" ImageSource="/StrategyClient;component/Graphics/loginBackground.jpg" Stretch="UniformToFill" />
+    </Window.Resources>
+    <Grid Background="{StaticResource ResourceKey=background}">
+    </Grid>
+</Window>

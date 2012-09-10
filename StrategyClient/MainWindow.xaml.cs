@@ -27,13 +27,7 @@ namespace StrategyClient
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string data = string.Empty;
-            data += (short)app.LanguageCode + "~";
-            data += app.Version.Major + "~";
-            data += app.Version.Minor + "~";
-            data += app.Version.Build + "~";
-            data += app.Version.Revision + "~";
-            client.Send(RequestType.Welcome, data);
+
         }
     }
 }
