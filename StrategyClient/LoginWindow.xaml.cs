@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace StrategyClient
 {
@@ -21,13 +22,20 @@ namespace StrategyClient
         App app;
         Client client;
         Thread clientThread;
+        UTF8Encoding utf8Encoder;
+
+        ImageSource exit, exitMouseOver;
+
         public LoginWindow()
         {
             InitializeComponent();
             app = (App)App.Current;
             client = app.Client;
+            utf8Encoder = new UTF8Encoding();
             TitleLabel.Content = "Strategie";
             VersionLabel.Content = "ver. " + app.Version.ToString();
+            exit = new BitmapImage(new Uri("/StrategyClient;component/Graphics/exit.png", UriKind.RelativeOrAbsolute));
+            exitMouseOver = new BitmapImage(new Uri("/StrategyClient;component/Graphics/exit2.png", UriKind.RelativeOrAbsolute));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -76,6 +84,42 @@ namespace StrategyClient
                         UpdateLoginButtons.Height = 37;
                     }
                     break;
+                case AnswerType.Registration:
+                    int errorCode = int.Parse(client.Answer[0]);
+                    RegistrationRegisterButton.IsEnabled = true;
+                    switch (errorCode)
+                    {
+                        case 0:
+                            RegistrationStatus.Content = "Registrace úspěšná! Nyní vyčkejte než bude potvrzena";
+                            RegistrationStatus.Foreground = Brushes.Green;
+                            RegistrationRegisterButton.IsEnabled = false;
+                            break;
+                        case 1:
+                            RegistrationStatus.Content = "Tento Login má v plánu použít jiný hráč";
+                            RegistrationStatus.Foreground = (Brush)Resources["blue"];
+                            break;
+                        case 2:
+                            RegistrationStatus.Content = "Toto jméno má v plánu použít jiný hráč";
+                            RegistrationStatus.Foreground = (Brush)Resources["blue"];
+                            break;
+                        case 3:
+                            RegistrationStatus.Content = "Z této IP adresy se v současné době nemůžete zaregistrovat";
+                            RegistrationStatus.Foreground = Brushes.Orange;
+                            break;
+                        case 4:
+                            RegistrationStatus.Content = "Tento login je již obsazený";
+                            RegistrationStatus.Foreground = Brushes.Purple;
+                            break;
+                        case 5:
+                            RegistrationStatus.Content = "Toto jméno je již obsazené";
+                            RegistrationStatus.Foreground = Brushes.Purple;
+                            break;
+                        case 6:
+                            RegistrationStatus.Content = "Bohužel, fronta nevyřízených registrací je plná";
+                            RegistrationStatus.Foreground = Brushes.Orange;
+                            break;
+                    }
+                    break;
             }
         }
 
@@ -87,8 +131,17 @@ namespace StrategyClient
 
         private void Update_Click(object sender, RoutedEventArgs e)
         {
+            UpdateAvailable.Content = "Stahování...";
             Update.IsEnabled = false;
             clientThread = new Thread(new ThreadStart(update));
+            clientThread.Start();
+        }
+
+        private void send(RequestType type)
+        {
+            client.RequestType = type;
+
+            clientThread = new Thread(new ThreadStart(client.Send));
             clientThread.Start();
         }
 
@@ -100,12 +153,73 @@ namespace StrategyClient
 
         private void executeUpdate()
         {
+            UpdateAvailable.Content = "Aktualizování...";
             ProcessStartInfo info = new ProcessStartInfo();
             info.WorkingDirectory = Directory.GetCurrentDirectory();
             info.FileName = "StrategyUpdater.exe";
             info.Arguments = "continue";
             Process process = Process.Start(info);
             app.Shutdown();
+        }
+
+        private void Register_Click(object sender, RoutedEventArgs e)
+        {
+            WelcomeScreen.Visibility = Visibility.Hidden;
+            RegistrationScreen.Visibility = Visibility.Visible;
+        }
+
+        private void Login_Click(object sender, RoutedEventArgs e)
+        {
+            WelcomeScreen.Visibility = Visibility.Hidden;
+        }
+
+        private void ExitImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            RegistrationScreen.Visibility = Visibility.Hidden;
+            WelcomeScreen.Visibility = Visibility.Visible;
+        }
+
+        private void ExitImage_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Image image = sender as Image;
+            image.Source = exitMouseOver;
+        }
+
+        private void ExitImage_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Image image = sender as Image;
+            image.Source = exit;
+        }
+
+        private void RegistrationRegister_Click(object sender, RoutedEventArgs e)
+        {
+            if (RegistrationLogin.Text.Length == 0 || RegistrationName.Text.Length == 0 || RegistrationPassword.Password.Length == 0 || RegistrationPasswordConfirm.Password.Length == 0 || RegistrationDescription.Text.Length == 0)
+            {
+                RegistrationStatus.Content = "Musíte vyplnit všechna pole";
+                RegistrationStatus.Foreground = Brushes.Red;
+                return;
+            }
+            if (RegistrationLogin.Text.Contains('~') || RegistrationName.Text.Contains('~') || RegistrationDescription.Text.Contains('~'))
+            {
+                RegistrationStatus.Content = "Login, jméno nebo popis obsahují nepovolené znaky";
+                RegistrationStatus.Foreground = Brushes.Red;
+                return;
+            }
+            if (RegistrationPassword.Password != RegistrationPasswordConfirm.Password)
+            {
+                RegistrationStatus.Content = "Hesla se neshodují";
+                RegistrationStatus.Foreground = Brushes.Red;
+                return;
+            }
+            RegistrationStatus.Content = "";
+            RegistrationRegisterButton.IsEnabled = false;
+
+            byte[] buffer = utf8Encoder.GetBytes(RegistrationPassword.Password);
+            SHA256 sha256 = new SHA256Managed();
+            client.passwordBuffer = sha256.ComputeHash(buffer);
+
+            client.Request = string.Format("{0}~{1}~{2}~", RegistrationLogin.Text, RegistrationName.Text, RegistrationDescription.Text);
+            send(RequestType.Registration);
         }
     }
 }

@@ -18,13 +18,16 @@ namespace StrategyClient
         public List<string> Answer { get; private set; }
         public RequestType RequestType { get; set; }
         public string Request { get; set; }
+        public byte[] passwordBuffer { get; set; }
 
         private TcpClient client;
         private NetworkStream clientStream;
         private Encryptor encryptor;
+        private UTF8Encoding utf8Encoder;
 
         public Client()
         {
+            utf8Encoder = new UTF8Encoding();
         }
 
         public void Connect()
@@ -44,11 +47,10 @@ namespace StrategyClient
                 }
             }
 
-            UTF8Encoding encoder = new UTF8Encoding();
             byte[] buffer = new byte[4096];
 
             int length = clientStream.Read(buffer, 0, buffer.Length);
-            string key = encoder.GetString(buffer, 0, length);
+            string key = utf8Encoder.GetString(buffer, 0, length);
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             rsa.FromXmlString(key);
             encryptor = new Encryptor();
@@ -66,6 +68,13 @@ namespace StrategyClient
 
             byte[] buffer = encryptor.Encrypt(text);
             clientStream.Write(buffer, 0, buffer.Length);
+
+            if (RequestType == RequestType.Registration)
+            {
+                text = utf8Encoder.GetString(passwordBuffer);
+                buffer = encryptor.Encrypt(text);
+                clientStream.Write(buffer, 0, buffer.Length);
+            }
 
             buffer = new byte[4096];
             int length = clientStream.Read(buffer, 0, buffer.Length);
