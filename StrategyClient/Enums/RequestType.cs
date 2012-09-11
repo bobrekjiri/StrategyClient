@@ -1,4 +1,4 @@
 ﻿namespace StrategyClient
 {
-    enum RequestType : short { Welcome }
+    enum RequestType : short { Welcome, Update }
 }
