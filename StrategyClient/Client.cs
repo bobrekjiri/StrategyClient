@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.IO;
 
+
 namespace StrategyClient
 {
     class Client : IDisposable
@@ -25,6 +26,9 @@ namespace StrategyClient
         private Encryptor encryptor;
         private UTF8Encoding utf8Encoder;
 
+        private string serverAddress;
+        private int serverPort;
+
         public Client()
         {
             utf8Encoder = new UTF8Encoding();
@@ -32,7 +36,7 @@ namespace StrategyClient
 
         public void Connect()
         {
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("213.220.250.46"), 9020); //TODO: load both values from configuration file
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
             while (true)
             {
                 try
