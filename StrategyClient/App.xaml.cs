@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.IO;
 using System.Xml;
+using System.Net;
 
 namespace StrategyClient
 {
@@ -17,13 +18,15 @@ namespace StrategyClient
         internal LanguageCode LanguageCode { get; set; }
         internal Version Version { get; set; }
 
-        private string serverAddress;
-        private int serverPort;
+        private IPAddress serverAddress = IPAddress.Parse("0");
+        private int serverPort = 0;
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LoadConfig();
             Client = new Client();
+            Client.ServerAddress = serverAddress;
+            Client.ServerPort = serverPort;
             Version = Assembly.GetExecutingAssembly().GetName().Version;
 
             while (true)
@@ -43,6 +46,7 @@ namespace StrategyClient
         {
             Client.Dispose();
         }
+
         private void LoadConfig()
         {
             Console.WriteLine("Loading configuration...");
@@ -61,7 +65,7 @@ namespace StrategyClient
                                 break;
                             case "Address":
                                 reader.Read();
-                                serverAddress = reader.Value;
+                                serverAddress = IPAddress.Parse(reader.Value);
                                 continue;
                             case "LanguageCode":
                                 reader.Read();
@@ -76,16 +80,20 @@ namespace StrategyClient
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("Configuration file not found!");
+                Console.WriteLine("Configuration file not found!"); //TODO: Create default file
             }
             catch (XmlException ex)
             {
-                Console.WriteLine("Error in loading configuration: " + ex.Message + " .");
+                Console.WriteLine("Error in loading configuration: " + ex.Message + " ."); //TODO: Create default file
             }
             catch (Exception)
             {
-                Console.WriteLine("Loading configuration failed!");
+                Console.WriteLine("Loading configuration failed!"); //TODO: Create default file
             }
+        }
+
+        private void SaveConfig() //TODO: Save configuration file with actual settings
+        {
         }
     }
 }

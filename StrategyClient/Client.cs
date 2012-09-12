@@ -26,8 +26,8 @@ namespace StrategyClient
         private Encryptor encryptor;
         private UTF8Encoding utf8Encoder;
 
-        private string serverAddress;
-        private int serverPort;
+        public IPAddress ServerAddress { get; set; }
+        public int ServerPort { get; set; }
 
         public Client()
         {
@@ -36,11 +36,11 @@ namespace StrategyClient
 
         public void Connect()
         {
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
             while (true)
             {
                 try
                 {
+                    IPEndPoint serverEndPoint = new IPEndPoint(ServerAddress, ServerPort);
                     client = new TcpClient();
                     client.Connect(serverEndPoint);
                     clientStream = client.GetStream();
@@ -116,7 +116,10 @@ namespace StrategyClient
 
         public void Dispose()
         {
-            client.Close();
+            if (client != null)
+            {
+                client.Close();
+            }
         }
 
         protected virtual void OnConnected(EventArgs e)

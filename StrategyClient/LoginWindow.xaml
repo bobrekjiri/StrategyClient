@@ -51,5 +51,13 @@
                 <Label Name="RegistrationStatus" Margin="0,7.5,0,0" Style="{StaticResource ResourceKey=textStyle1}" HorizontalContentAlignment="Center"></Label>
             </StackPanel>
         </Grid>
+        <Rectangle HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{StaticResource ResourceKey=black}" Width="36" Height="36"></Rectangle>
+        <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="/StrategyClient;component/Graphics/cogwheel.png" Width="36" Height="36" MouseLeftButtonDown="Settings_MouseLeftButtonDown"></Image>
+        <DockPanel Name="Settings" Visibility="Hidden" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36" Margin="0,0,36,0" Background="{StaticResource ResourceKey=black}">
+            <Label Style="{StaticResource ResourceKey=textStyle1}" Width="36">IP:</Label>
+            <TextBox Name="ServerIP" Style="{StaticResource ResourceKey=textStyle1}" Background="{StaticResource ResourceKey=black}" MaxLength="15" CaretBrush="White" VerticalContentAlignment="Center" Width="200" HorizontalContentAlignment="Center" />
+            <Label Style="{StaticResource ResourceKey=textStyle1}" Width="64">Port:</Label>
+            <TextBox Name="ServerPort" Style="{StaticResource ResourceKey=textStyle1}" Background="{StaticResource ResourceKey=black}" MaxLength="5" CaretBrush="White" VerticalContentAlignment="Center" Width="80" HorizontalContentAlignment="Center" Margin="0,0,2,0" />
+        </DockPanel>
     </Grid>
 </Window>

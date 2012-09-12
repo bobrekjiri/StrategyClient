@@ -14,6 +14,7 @@ using System.Threading;
 using System.IO;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Net;
 
 namespace StrategyClient
 {
@@ -31,6 +32,8 @@ namespace StrategyClient
             InitializeComponent();
             app = (App)App.Current;
             client = app.Client;
+            ServerIP.Text = client.ServerAddress.ToString();
+            ServerPort.Text = client.ServerPort.ToString();
             utf8Encoder = new UTF8Encoding();
             TitleLabel.Content = "Strategie";
             VersionLabel.Content = "ver. " + app.Version.ToString();
@@ -43,6 +46,7 @@ namespace StrategyClient
             client.Connected += new EventHandler(Client_Connected);
             client.AnswerReceived += new EventHandler(client_AnswerReceived);
             clientThread = new Thread(new ThreadStart(client.Connect));
+            clientThread.IsBackground = true;
             clientThread.Start();
         }
 
@@ -134,6 +138,7 @@ namespace StrategyClient
             UpdateAvailable.Content = "Stahování...";
             Update.IsEnabled = false;
             clientThread = new Thread(new ThreadStart(update));
+            clientThread.IsBackground = true;
             clientThread.Start();
         }
 
@@ -142,6 +147,7 @@ namespace StrategyClient
             client.RequestType = type;
 
             clientThread = new Thread(new ThreadStart(client.Send));
+            clientThread.IsBackground = true;
             clientThread.Start();
         }
 
@@ -220,6 +226,25 @@ namespace StrategyClient
 
             client.Request = string.Format("{0}~{1}~{2}~", RegistrationLogin.Text, RegistrationName.Text, RegistrationDescription.Text);
             send(RequestType.Registration);
+        }
+
+        private void Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Settings.Visibility == Visibility.Hidden)
+            {
+                Settings.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Settings.Visibility = Visibility.Hidden;
+                IPAddress ip;
+                int port;
+                if (IPAddress.TryParse(ServerIP.Text, out ip) && int.TryParse(ServerPort.Text, out port))
+                {
+                    client.ServerAddress = ip;
+                    client.ServerPort = port;
+                }
+            }
         }
     }
 }
