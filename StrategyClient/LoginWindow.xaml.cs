@@ -97,7 +97,7 @@ namespace StrategyClient
                             RegistrationStatus.Foreground = Brushes.Green;
                             break;
                         case 1:
-                            RegistrationStatus.Content = "Tento Login má v plánu použít jiný hráč";
+                            RegistrationStatus.Content = "Tento login má v plánu použít jiný hráč";
                             RegistrationStatus.Foreground = (Brush)Resources["blue"];
                             break;
                         case 2:
@@ -127,6 +127,8 @@ namespace StrategyClient
                     errorCode = int.Parse(client.Answer[0]);
                     LoginLoginButton.IsEnabled = errorCode != 0;
                     EnterGame.IsEnabled = errorCode == 0;
+                    Settings.IsEnabled = errorCode == 0;
+                    Settings.IsExpanded = errorCode == 0;
                     switch (errorCode)
                     {
                         case 0:
@@ -138,6 +140,47 @@ namespace StrategyClient
                             LoginStatus.Foreground = Brushes.Purple;
                             break;
                     }
+                    break;
+
+                case AnswerType.ChangeLogin:
+                    errorCode = int.Parse(client.Answer[0]);
+                    switch (errorCode)
+                    {
+                        case 0:
+                            LoginStatus.Content = "Změna úspěšná";
+                            LoginStatus.Foreground = Brushes.Green;
+                            break;
+                        case 1:
+                            LoginStatus.Content = "Tento login má v plánu použít jiný hráč";
+                            LoginStatus.Foreground = (Brush)Resources["blue"];
+                            break;
+                        case 2:
+                            LoginStatus.Content = "Tento login je již obsazený";
+                            LoginStatus.Foreground = Brushes.Purple;
+                            break;
+                    }
+                    break;
+                case AnswerType.ChangeName:
+                    errorCode = int.Parse(client.Answer[0]);
+                    switch (errorCode)
+                    {
+                        case 0:
+                            LoginStatus.Content = "Změna úspěšná";
+                            LoginStatus.Foreground = Brushes.Green;
+                            break;
+                        case 1:
+                            LoginStatus.Content = "Toto jméno má v plánu použít jiný hráč";
+                            LoginStatus.Foreground = (Brush)Resources["blue"];
+                            break;
+                        case 2:
+                            LoginStatus.Content = "Toto jméno je již obsazené";
+                            LoginStatus.Foreground = Brushes.Purple;
+                            break;
+                    }
+                    break;
+                case AnswerType.ChangePassword:
+                    LoginStatus.Content = "Změna úspěšná";
+                    LoginStatus.Foreground = Brushes.Green;
                     break;
             }
         }
@@ -246,13 +289,13 @@ namespace StrategyClient
 
         private void Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (Settings.Visibility == Visibility.Hidden)
+            if (ConnectionSettings.Visibility == Visibility.Hidden)
             {
-                Settings.Visibility = Visibility.Visible;
+                ConnectionSettings.Visibility = Visibility.Visible;
             }
             else
             {
-                Settings.Visibility = Visibility.Hidden;
+                ConnectionSettings.Visibility = Visibility.Hidden;
                 IPAddress ip;
                 int port;
                 if (IPAddress.TryParse(ServerIP.Text, out ip) && int.TryParse(ServerPort.Text, out port))
@@ -285,6 +328,53 @@ namespace StrategyClient
 
             client.Request = string.Format("{0}~", LoginLogin.Text);
             send(RequestType.Login);
+        }
+
+        private void SettingsLoginChange_Click(object sender, RoutedEventArgs e)
+        {
+            if (SettingsLogin.Text.Length == 0)
+            {
+                LoginStatus.Content = "Musíte vyplnit pole";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+            client.Request = string.Format("{0}~", SettingsLogin.Text);
+            send(RequestType.ChangeLogin);
+        }
+
+        private void SettingsNameChange_Click(object sender, RoutedEventArgs e)
+        {
+            if (SettingsName.Text.Length == 0)
+            {
+                LoginStatus.Content = "Musíte vyplnit pole";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+            client.Request = string.Format("{0}~", SettingsName.Text);
+            send(RequestType.ChangeName);
+        }
+
+        private void SettingsPasswordChange_Click(object sender, RoutedEventArgs e)
+        {
+            if (SettingsPassword.Password.Length == 0 || SettingsConfirmPassword.Password.Length == 0)
+            {
+                LoginStatus.Content = "Musíte vyplnit obě pole";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+            if (SettingsPassword.Password != SettingsConfirmPassword.Password)
+            {
+                LoginStatus.Content = "Hesla se neshodují";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+
+            byte[] buffer = utf8Encoder.GetBytes(SettingsPassword.Password);
+            SHA256 sha256 = new SHA256Managed();
+            client.passwordBuffer = sha256.ComputeHash(buffer);
+
+            client.Request = string.Empty;
+            send(RequestType.ChangePassword);
         }
 
         private void EnterGame_Click(object sender, RoutedEventArgs e)
