@@ -73,8 +73,6 @@ namespace StrategyClient
         {
             switch (client.AnswerType)
             {
-                case AnswerType.UnknownRequestError:
-                    break;
                 case AnswerType.Welcome:
                     ServerStatus.Content = "Připojen k " + client.Answer[1];
                     WelcomeMessage.Text = client.Answer[2];
@@ -88,15 +86,15 @@ namespace StrategyClient
                         UpdateLoginButtons.Height = 37;
                     }
                     break;
+
                 case AnswerType.Registration:
                     int errorCode = int.Parse(client.Answer[0]);
-                    RegistrationRegisterButton.IsEnabled = true;
+                    RegistrationRegisterButton.IsEnabled = errorCode != 0;
                     switch (errorCode)
                     {
                         case 0:
                             RegistrationStatus.Content = "Registrace úspěšná! Nyní vyčkejte než bude potvrzena";
                             RegistrationStatus.Foreground = Brushes.Green;
-                            RegistrationRegisterButton.IsEnabled = false;
                             break;
                         case 1:
                             RegistrationStatus.Content = "Tento Login má v plánu použít jiný hráč";
@@ -121,6 +119,23 @@ namespace StrategyClient
                         case 6:
                             RegistrationStatus.Content = "Bohužel, fronta nevyřízených registrací je plná";
                             RegistrationStatus.Foreground = Brushes.Orange;
+                            break;
+                    }
+                    break;
+
+                case AnswerType.Login:
+                    errorCode = int.Parse(client.Answer[0]);
+                    LoginLoginButton.IsEnabled = errorCode != 0;
+                    EnterGame.IsEnabled = errorCode == 0;
+                    switch (errorCode)
+                    {
+                        case 0:
+                            LoginStatus.Content = "Přihlášení úspěšné";
+                            LoginStatus.Foreground = Brushes.Green;
+                            break;
+                        case 1:
+                            LoginStatus.Content = "Špatný login nebo heslo";
+                            LoginStatus.Foreground = Brushes.Purple;
                             break;
                     }
                     break;
@@ -177,6 +192,7 @@ namespace StrategyClient
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             WelcomeScreen.Visibility = Visibility.Hidden;
+            LoginScreen.Visibility = Visibility.Visible;
         }
 
         private void ExitImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -245,6 +261,35 @@ namespace StrategyClient
                     client.ServerPort = port;
                 }
             }
+        }
+
+        private void LoginLogin_Click(object sender, RoutedEventArgs e)
+        {
+            if (LoginLogin.Text.Length == 0 || LoginPassword.Password.Length == 0)
+            {
+                LoginStatus.Content = "Musíte vyplnit všechna pole";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+            if (LoginLogin.Text.Contains('~'))
+            {
+                LoginStatus.Content = "Login obsahuje nepovolené znaky";
+                LoginStatus.Foreground = Brushes.Red;
+                return;
+            }
+            LoginLoginButton.IsEnabled = false;
+
+            byte[] buffer = utf8Encoder.GetBytes(LoginPassword.Password);
+            SHA256 sha256 = new SHA256Managed();
+            client.passwordBuffer = sha256.ComputeHash(buffer);
+
+            client.Request = string.Format("{0}~", LoginLogin.Text);
+            send(RequestType.Login);
+        }
+
+        private void EnterGame_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

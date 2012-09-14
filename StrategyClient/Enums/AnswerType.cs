@@ -1,4 +1,4 @@
 ﻿namespace StrategyClient
 {
-    enum AnswerType : short { UnknownRequestError, Welcome, Update, Registration }
+    enum AnswerType : short { Welcome, Update, Registration, Login }
 }

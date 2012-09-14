@@ -50,6 +50,19 @@
                 <TextBox Name="RegistrationDescription" Style="{StaticResource ResourceKey=textStyle1}" Background="{StaticResource ResourceKey=black}" MaxLength="1024" CaretBrush="White" Margin="25,0,25,0" Height="210" TextWrapping="Wrap" />
                 <Label Name="RegistrationStatus" Margin="0,7.5,0,0" Style="{StaticResource ResourceKey=textStyle1}" HorizontalContentAlignment="Center"></Label>
             </StackPanel>
+            <Grid Name="LoginScreen" Margin="25,25,25,25" Visibility="Hidden">
+                <DockPanel VerticalAlignment="Top" Height="40">
+                    <Label Style="{StaticResource ResourceKey=textStyle1}">Login:</Label>
+                    <TextBox Name="LoginLogin" Style="{StaticResource ResourceKey=textStyle1}" Background="{StaticResource ResourceKey=black}" MaxLength="24" CaretBrush="White" VerticalContentAlignment="Center" Width="200"/>
+                    <Label Style="{StaticResource ResourceKey=textStyle1}">Heslo:</Label>
+                    <PasswordBox Name="LoginPassword" HorizontalAlignment="Left" Style="{StaticResource ResourceKey=textStyle1}" Background="{StaticResource ResourceKey=black}" MaxLength="128" CaretBrush="White" VerticalContentAlignment="Center" Width="200" />
+                    <Button Name="LoginLoginButton" HorizontalAlignment="Right" Width="125" FontSize="20" Click="LoginLogin_Click">Přihlásit</Button>
+                </DockPanel>
+                <DockPanel Height="40" VerticalAlignment="Bottom">
+                    <Label Name="LoginStatus" Style="{StaticResource ResourceKey=textStyle1}" HorizontalContentAlignment="Center" Width="625"></Label>
+                    <Button Name="EnterGame" HorizontalAlignment="Right" Width="125" FontSize="20" IsEnabled="False" Click="EnterGame_Click">Vstup do hry</Button>
+                </DockPanel>
+            </Grid>
         </Grid>
         <Rectangle HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{StaticResource ResourceKey=black}" Width="36" Height="36"></Rectangle>
         <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="/StrategyClient;component/Graphics/cogwheel.png" Width="36" Height="36" MouseLeftButtonDown="Settings_MouseLeftButtonDown"></Image>

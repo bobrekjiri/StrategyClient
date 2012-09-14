@@ -73,11 +73,9 @@ namespace StrategyClient
             byte[] buffer = encryptor.Encrypt(text);
             clientStream.Write(buffer, 0, buffer.Length);
 
-            if (RequestType == RequestType.Registration)
+            if (RequestType == RequestType.Registration || RequestType == RequestType.Login)
             {
-                text = utf8Encoder.GetString(passwordBuffer);
-                buffer = encryptor.Encrypt(text);
-                clientStream.Write(buffer, 0, buffer.Length);
+                clientStream.Write(passwordBuffer, 0, passwordBuffer.Length);
             }
 
             buffer = new byte[4096];

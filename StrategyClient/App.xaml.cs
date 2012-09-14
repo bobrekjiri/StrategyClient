@@ -24,13 +24,14 @@ namespace StrategyClient
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LoadConfig();
-            Client = new Client();
-            Client.ServerAddress = serverAddress;
-            Client.ServerPort = serverPort;
             Version = Assembly.GetExecutingAssembly().GetName().Version;
 
             while (true)
             {
+                Client = new Client();
+                Client.ServerAddress = serverAddress;
+                Client.ServerPort = serverPort;
+
                 LoginWindow loginWindow = new LoginWindow();
                 bool? goAhead = loginWindow.ShowDialog();
                 if (goAhead != true)
