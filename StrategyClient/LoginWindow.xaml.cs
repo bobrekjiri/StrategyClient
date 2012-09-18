@@ -36,9 +36,14 @@ namespace StrategyClient
             ServerPort.Text = client.ServerPort.ToString();
             utf8Encoder = new UTF8Encoding();
             TitleLabel.Content = "Strategie";
-            VersionLabel.Content = "ver. " + app.Version.ToString();
+            VersionLabel.Content = "verze: " + app.Version.ToString();
             exit = new BitmapImage(new Uri("/StrategyClient;component/Graphics/exit.png", UriKind.RelativeOrAbsolute));
             exitMouseOver = new BitmapImage(new Uri("/StrategyClient;component/Graphics/exit2.png", UriKind.RelativeOrAbsolute));
+            SaveLogin.IsChecked = client.Login != string.Empty;
+            if (SaveLogin.IsChecked == true)
+            {
+                LoginLogin.Text = client.Login;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -281,7 +286,7 @@ namespace StrategyClient
 
             byte[] buffer = utf8Encoder.GetBytes(RegistrationPassword.Password);
             SHA256 sha256 = new SHA256Managed();
-            client.passwordBuffer = sha256.ComputeHash(buffer);
+            client.PasswordBuffer = sha256.ComputeHash(buffer);
 
             client.Request = string.Format("{0}~{1}~{2}~", RegistrationLogin.Text, RegistrationName.Text, RegistrationDescription.Text);
             send(RequestType.Registration);
@@ -322,9 +327,16 @@ namespace StrategyClient
             }
             LoginLoginButton.IsEnabled = false;
 
-            byte[] buffer = utf8Encoder.GetBytes(LoginPassword.Password);
-            SHA256 sha256 = new SHA256Managed();
-            client.passwordBuffer = sha256.ComputeHash(buffer);
+            if (LoginPassword.Password == "~fromhash~")
+            {
+                client.PasswordBuffer = utf8Encoder.GetBytes(client.Password);
+            }
+            else
+            {
+                byte[] buffer = utf8Encoder.GetBytes(LoginPassword.Password);
+                SHA256 sha256 = new SHA256Managed();
+                client.PasswordBuffer = sha256.ComputeHash(buffer);
+            }
 
             client.Request = string.Format("{0}~", LoginLogin.Text);
             send(RequestType.Login);
@@ -371,7 +383,7 @@ namespace StrategyClient
 
             byte[] buffer = utf8Encoder.GetBytes(SettingsPassword.Password);
             SHA256 sha256 = new SHA256Managed();
-            client.passwordBuffer = sha256.ComputeHash(buffer);
+            client.PasswordBuffer = sha256.ComputeHash(buffer);
 
             client.Request = string.Empty;
             send(RequestType.ChangePassword);
@@ -379,7 +391,13 @@ namespace StrategyClient
 
         private void EnterGame_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = true;
+            Close();
+        }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            client.Login = (SaveLogin.IsChecked == true) ? LoginLogin.Text : string.Empty;
         }
     }
 }

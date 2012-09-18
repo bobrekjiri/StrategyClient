@@ -19,7 +19,8 @@ namespace StrategyClient
         public List<string> Answer { get; private set; }
         public RequestType RequestType { get; set; }
         public string Request { get; set; }
-        public byte[] passwordBuffer { get; set; }
+        public byte[] PasswordBuffer { get; set; }
+        public string Login { get; set; }
 
         private TcpClient client;
         private NetworkStream clientStream;
@@ -75,7 +76,7 @@ namespace StrategyClient
 
             if (RequestType == RequestType.Registration || RequestType == RequestType.Login || RequestType == RequestType.ChangePassword)
             {
-                buffer = encryptor.XorThis(passwordBuffer);
+                buffer = encryptor.XorThis(PasswordBuffer);
                 clientStream.Write(buffer, 0, buffer.Length);
             }
 
