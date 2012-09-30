@@ -36,6 +36,7 @@ namespace StrategyClient
                 }
                 MainWindow mainWindow = new MainWindow();
                 mainWindow.ShowDialog();
+                Client.Dispose();
             }
             Shutdown();
         }

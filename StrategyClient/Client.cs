@@ -21,6 +21,7 @@ namespace StrategyClient
         public string Request { get; set; }
         public byte[] PasswordBuffer { get; set; }
         public string Login { get; set; }
+        public string Name { get; set; }
 
         private TcpClient client;
         private NetworkStream clientStream;

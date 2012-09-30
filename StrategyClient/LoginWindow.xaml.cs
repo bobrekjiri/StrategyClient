@@ -24,6 +24,7 @@ namespace StrategyClient
         Client client;
         Thread clientThread;
         UTF8Encoding utf8Encoder;
+        EventHandler answerHandler, connectionHandler;
 
         ImageSource exit, exitMouseOver;
 
@@ -44,12 +45,17 @@ namespace StrategyClient
             {
                 LoginLogin.Text = client.Login;
             }
+#if DEBUG
+            LoginPassword.Password = "majzlik";
+#endif
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            client.Connected += new EventHandler(Client_Connected);
-            client.AnswerReceived += new EventHandler(client_AnswerReceived);
+            connectionHandler = new EventHandler(Client_Connected);
+            answerHandler = new EventHandler(client_AnswerReceived);
+            client.Connected += connectionHandler;
+            client.AnswerReceived += answerHandler;
             clientThread = new Thread(new ThreadStart(client.Connect));
             clientThread.IsBackground = true;
             clientThread.Start();
@@ -327,16 +333,9 @@ namespace StrategyClient
             }
             LoginLoginButton.IsEnabled = false;
 
-            if (LoginPassword.Password == "~fromhash~")
-            {
-                client.PasswordBuffer = utf8Encoder.GetBytes(client.Password);
-            }
-            else
-            {
-                byte[] buffer = utf8Encoder.GetBytes(LoginPassword.Password);
-                SHA256 sha256 = new SHA256Managed();
-                client.PasswordBuffer = sha256.ComputeHash(buffer);
-            }
+            byte[] buffer = utf8Encoder.GetBytes(LoginPassword.Password);
+            SHA256 sha256 = new SHA256Managed();
+            client.PasswordBuffer = sha256.ComputeHash(buffer);
 
             client.Request = string.Format("{0}~", LoginLogin.Text);
             send(RequestType.Login);
@@ -398,6 +397,8 @@ namespace StrategyClient
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             client.Login = (SaveLogin.IsChecked == true) ? LoginLogin.Text : string.Empty;
+            client.Connected -= connectionHandler;
+            client.AnswerReceived -= answerHandler;
         }
     }
 }

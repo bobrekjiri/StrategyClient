@@ -65,6 +65,9 @@
     <Compile Include="Enums\AnswerType.cs" />
     <Compile Include="Enums\LanguageCode.cs" />
     <Compile Include="Enums\RequestType.cs" />
+    <Compile Include="Enums\TileType.cs" />
+    <Compile Include="Enums\VillageState.cs" />
+    <Compile Include="TileInfo.cs" />
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -87,6 +90,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Map.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -122,6 +126,12 @@
   <ItemGroup>
     <Resource Include="Graphics\exit.png" />
     <Resource Include="Graphics\exit2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Graphics\blank.png" />
+    <Resource Include="Graphics\forest.png" />
+    <Resource Include="Graphics\lake.png" />
+    <Resource Include="Graphics\v0.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
